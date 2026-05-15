@@ -1,8 +1,24 @@
 import Vido4KDownloader from "@/components/Vido4KDownloader";
 
-const siteUrl = "https://vido4k.aliwvide.com";
+const siteUrl = "https://vido4k.aliwvide.com/";
 
-const faqJsonLd = {
+const webApplicationSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Vido4K",
+  url: siteUrl,
+  applicationCategory: "MultimediaApplication",
+  operatingSystem: "Any",
+  description:
+    "Vido4K helps users prepare browser downloads from direct video file links such as MP4, WebM, MOV, M4V and OGG.",
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "USD"
+  }
+};
+
+const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
   mainEntity: [
@@ -11,12 +27,12 @@ const faqJsonLd = {
       name: "Can Vido4K download protected platform videos?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "No. Vido4K is built for direct video file links only and does not bypass protected platform restrictions."
+        text: "No. Vido4K is built for direct video file links only and does not bypass protected platforms or login restrictions."
       }
     },
     {
       "@type": "Question",
-      name: "What video links are supported?",
+      name: "Which video file links are supported?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "Vido4K supports direct MP4, WebM, MOV, M4V and OGG file URLs that the user owns or has permission to download."
@@ -24,42 +40,21 @@ const faqJsonLd = {
     },
     {
       "@type": "Question",
-      name: "Can I select 4K quality?",
+      name: "Does Vido4K store uploaded videos?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Yes. Vido4K includes labels for 4K 2160p, 2K 1440p, Full HD 1080p, HD 720p and original file downloads."
+        text: "No. Vido4K works with direct file URLs in the browser and does not upload or store user videos on a server."
       }
     },
     {
       "@type": "Question",
-      name: "Does Vido4K store videos?",
+      name: "Does Vido4K support 4K?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "No. Direct file links are downloaded through the user's browser. Vido4K does not store videos on the server."
+        text: "Yes. Vido4K includes 4K and 2K quality labels for direct video files. The final file quality depends on the original direct video link."
       }
     }
   ]
-};
-
-const softwareJsonLd = {
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  name: "Vido4K",
-  url: siteUrl,
-  applicationCategory: "MultimediaApplication",
-  operatingSystem: "Any",
-  description:
-    "Free direct 4K video downloader for MP4, WebM, MOV, M4V and OGG video file links.",
-  offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "USD"
-  },
-  publisher: {
-    "@type": "Organization",
-    name: "Aliwvide",
-    url: "https://www.aliwvide.com"
-  }
 };
 
 export default function Page() {
@@ -67,11 +62,15 @@ export default function Page() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(webApplicationSchema)
+        }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqSchema)
+        }}
       />
       <Vido4KDownloader />
     </>

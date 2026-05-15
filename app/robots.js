@@ -1,14 +1,10 @@
-const siteUrl = "https://vido4k.aliwvide.com";
-
 export default function robots() {
   return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/"
-      }
-    ],
-    sitemap: `${siteUrl}/sitemap.xml`,
-    host: siteUrl
+    rules: {
+      userAgent: "*",
+      allow: "/"
+    },
+    sitemap: "https://vido4k.aliwvide.com/sitemap.xml",
+    host: "https://vido4k.aliwvide.com"
   };
 }

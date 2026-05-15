@@ -1,9 +1,7 @@
-const siteUrl = "https://vido4k.aliwvide.com";
-
 export default function sitemap() {
   return [
     {
-      url: siteUrl,
+      url: "https://vido4k.aliwvide.com/",
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 1

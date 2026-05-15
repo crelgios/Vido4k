@@ -13,7 +13,10 @@ html {
 body {
   margin: 0;
   background: #020617;
-  color: #ffffff;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 ::selection {

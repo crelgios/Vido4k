@@ -1,19 +1,26 @@
 # Vido4K
 
-SEO-ready Next.js project for `https://vido4k.aliwvide.com/`.
+SEO-ready Next.js website for:
 
-## What is included
+```txt
+https://vido4k.aliwvide.com/
+```
+
+## Features
 
 - Vido4K branding
-- SEO title and meta description
-- Canonical URL for `https://vido4k.aliwvide.com/`
-- Open Graph and Twitter card metadata
-- `robots.js` and `sitemap.js`
-- FAQ structured data
-- WebApplication structured data
-- Direct video file downloader UI
-- 4K, 2K, Full HD, HD and original file quality labels
-- Protected platform links blocked with a clear message
+- Free 4K video downloader UI
+- Direct video file link validation
+- Supports MP4, WebM, MOV, M4V and OGG direct URLs
+- Blocks unsupported protected platform links
+- SEO metadata
+- Canonical URL
+- Sitemap route
+- Robots route
+- FAQ schema
+- WebApplication schema
+- Open Graph image
+- Favicon
 
 ## Run locally
 
@@ -24,35 +31,51 @@ npm run dev
 
 Open:
 
-```text
+```txt
 http://localhost:3000
+```
+
+## Build
+
+```bash
+npm run build
 ```
 
 ## Deploy on Vercel
 
 1. Upload this project to GitHub.
 2. Import the GitHub repo in Vercel.
-3. Add domain in Vercel Project Settings:
+3. Deploy.
+4. Go to Vercel Project Settings > Domains.
+5. Add:
 
-```text
+```txt
 vido4k.aliwvide.com
 ```
 
-4. In Hostinger DNS for `aliwvide.com`, add:
+## Hostinger DNS
 
-```text
+In Hostinger DNS Zone for `aliwvide.com`, add:
+
+```txt
 Type: CNAME
 Name: vido4k
-Value: cname.vercel-dns.com
+Target: cname.vercel-dns.com
 TTL: Default
 ```
 
-5. After the domain works, submit this sitemap in Google Search Console:
+Do not change `@` or `www` records if your main website already uses them.
 
-```text
-https://vido4k.aliwvide.com/sitemap.xml
+## Google Search Console
+
+After the domain is live, add this property:
+
+```txt
+https://vido4k.aliwvide.com/
 ```
 
-## Important
+Submit sitemap:
 
-This tool is built for direct video file URLs only. It does not bypass protected platforms or private content restrictions.
+```txt
+https://vido4k.aliwvide.com/sitemap.xml
+```
