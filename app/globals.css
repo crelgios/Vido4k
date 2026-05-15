@@ -2,23 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: dark;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  background: #020617;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-::selection {
-  background: rgba(52, 211, 153, 0.35);
+body{
+ background:#020617;
+ color:white;
+ margin:0;
+ font-family:Arial,sans-serif;
 }

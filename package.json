@@ -2,7 +2,6 @@
   "name": "vido4k",
   "version": "1.0.0",
   "private": true,
-  "description": "Vido4K SEO-ready direct video file downloader for vido4k.aliwvide.com",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
