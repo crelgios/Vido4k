@@ -4,7 +4,7 @@ Deploy on Vercel and connect:
 
 https://vido4k.aliwvide.com
 
-DNS record in Hostinger:
+DNS:
 
 Type: CNAME
 Name: vido4k
