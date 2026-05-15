@@ -1,4 +1,4 @@
-import Vido4KDownloader from "@/components/Vido4KDownloader";
+import Vido4KDownloader from "../components/Vido4KDownloader";
 
 const siteUrl = "https://vido4k.aliwvide.com/";
 
