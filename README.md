@@ -6,22 +6,6 @@ SEO-ready Next.js website for:
 https://vido4k.aliwvide.com/
 ```
 
-## Features
-
-- Vido4K branding
-- Free 4K video downloader UI
-- Direct video file link validation
-- Supports MP4, WebM, MOV, M4V and OGG direct URLs
-- Blocks unsupported protected platform links
-- SEO metadata
-- Canonical URL
-- Sitemap route
-- Robots route
-- FAQ schema
-- WebApplication schema
-- Open Graph image
-- Favicon
-
 ## Run locally
 
 ```bash
@@ -29,22 +13,16 @@ npm install
 npm run dev
 ```
 
-Open:
-
-```txt
-http://localhost:3000
-```
-
-## Build
+## Build locally
 
 ```bash
 npm run build
 ```
 
-## Deploy on Vercel
+## Vercel deployment
 
 1. Upload this project to GitHub.
-2. Import the GitHub repo in Vercel.
+2. Import the repo in Vercel.
 3. Deploy.
 4. Go to Vercel Project Settings > Domains.
 5. Add:
@@ -53,9 +31,9 @@ npm run build
 vido4k.aliwvide.com
 ```
 
-## Hostinger DNS
+## Hostinger DNS record
 
-In Hostinger DNS Zone for `aliwvide.com`, add:
+In Hostinger DNS Zone for `aliwvide.com`, add only this new record:
 
 ```txt
 Type: CNAME
@@ -64,11 +42,11 @@ Target: cname.vercel-dns.com
 TTL: Default
 ```
 
-Do not change `@` or `www` records if your main website already uses them.
+Do not change `@` or `www` records.
 
 ## Google Search Console
 
-After the domain is live, add this property:
+After deployment, add this property:
 
 ```txt
 https://vido4k.aliwvide.com/

@@ -10,7 +10,7 @@ export const metadata = {
     "Download direct 4K, 2K, Full HD, MP4, WebM, MOV, M4V and OGG video file links safely with Vido4K.",
   keywords: [
     "4K video downloader",
-    "free video downloader",
+    "free 4K video downloader",
     "direct video downloader",
     "MP4 downloader",
     "WebM downloader",

@@ -4,7 +4,6 @@ export default function robots() {
       userAgent: "*",
       allow: "/"
     },
-    sitemap: "https://vido4k.aliwvide.com/sitemap.xml",
-    host: "https://vido4k.aliwvide.com"
+    sitemap: "https://vido4k.aliwvide.com/sitemap.xml"
   };
 }
