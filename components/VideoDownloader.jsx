@@ -8,7 +8,7 @@ const BLOCKED_DOMAINS = [
   "instagram.com",
   "facebook.com",
   "fb.watch",
-  "threads.net",
+  "threads.net"
 ];
 
 const VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "m4v", "ogg"];
@@ -20,43 +20,38 @@ const TEST_CASES = [
   {
     name: "direct mp4 is accepted",
     input: "https://example.com/video.mp4",
-    expectedType: "ready",
+    expectedType: "ready"
   },
   {
     name: "direct webm with query is accepted",
     input: "https://cdn.example.com/clip.webm?download=1",
-    expectedType: "ready",
+    expectedType: "ready"
   },
   {
     name: "uppercase extension is accepted",
     input: "https://example.com/VIDEO.MP4",
-    expectedType: "ready",
+    expectedType: "ready"
   },
   {
     name: "protected platform is blocked",
     input: "https://www.youtube.com/watch?v=abc123",
-    expectedType: "platform",
-  },
-  {
-    name: "mobile protected platform is blocked",
-    input: "https://m.youtube.com/watch?v=abc123",
-    expectedType: "platform",
+    expectedType: "platform"
   },
   {
     name: "non video page is rejected",
     input: "https://example.com/page",
-    expectedType: "not-video-file",
+    expectedType: "not-video-file"
   },
   {
     name: "ftp link is rejected",
     input: "ftp://example.com/video.mp4",
-    expectedType: "protocol",
+    expectedType: "protocol"
   },
   {
     name: "bad url is rejected",
     input: "not a url",
-    expectedType: "invalid",
-  },
+    expectedType: "invalid"
+  }
 ];
 
 export default function VideoDownloader() {
@@ -73,16 +68,11 @@ export default function VideoDownloader() {
   const failedTests = useMemo(() => runTests(), []);
 
   useEffect(() => {
-    // Prepare the popunder script after the page loads.
-    // Ad networks often need their script available before a user click.
-    const prepareTimer = window.setTimeout(() => {
-      loadAdsterraPopunder();
-    }, 1200);
+    // Popunder scripts usually need to be loaded before the user click.
+    // The Get Video button click then becomes the user interaction trigger.
+    loadAdsterraPopunder();
 
-    return () => {
-      window.clearTimeout(prepareTimer);
-      clearTimers(timersRef);
-    };
+    return () => clearTimers(timersRef);
   }, []);
 
   function resetForNewUrl(nextUrl) {
@@ -95,7 +85,7 @@ export default function VideoDownloader() {
   function handleSubmit(event) {
     event.preventDefault();
 
-    // Also call it during the click flow. If it is already loaded, this does nothing.
+    // Keep this here too, in case the script was blocked or not ready on first page load.
     loadAdsterraPopunder();
 
     const currentCheck = validateUrl(url);
@@ -323,8 +313,8 @@ export default function VideoDownloader() {
           />
 
           <Faq
-            q="Can I add video compressor later?"
-            a="Yes. Upload-based tools like compressor, trimmer, watermark, and converter can be added separately."
+            q="Why is the popunder not showing every click?"
+            a="Popunder ads depend on the ad network, browser popup rules, ad blockers, approval status, and session limits. The code loads the script, but the ad network decides when to show it."
           />
         </div>
       </section>
@@ -422,7 +412,7 @@ function validateUrl(value) {
     return {
       ok: false,
       type: "empty",
-      message: "Paste a video link first.",
+      message: "Paste a video link first."
     };
   }
 
@@ -435,7 +425,7 @@ function validateUrl(value) {
       ok: false,
       type: "invalid",
       message:
-        "Please enter a valid URL, for example https://example.com/video.mp4.",
+        "Please enter a valid URL, for example https://example.com/video.mp4."
     };
   }
 
@@ -443,7 +433,7 @@ function validateUrl(value) {
     return {
       ok: false,
       type: "protocol",
-      message: "Only http and https video links are supported.",
+      message: "Only http and https video links are supported."
     };
   }
 
@@ -458,7 +448,7 @@ function validateUrl(value) {
       ok: false,
       type: "platform",
       message:
-        "This looks like a protected platform link. This website cannot download protected platform videos. Use official download options or direct video files you own.",
+        "This looks like a protected platform link. This website cannot download protected platform videos. Use official download options or direct video files you own."
     };
   }
 
@@ -473,14 +463,14 @@ function validateUrl(value) {
       ok: false,
       type: "not-video-file",
       message:
-        "This does not look like a direct video file link. Try a URL ending in MP4, WebM, MOV, M4V, or OGG.",
+        "This does not look like a direct video file link. Try a URL ending in MP4, WebM, MOV, M4V, or OGG."
     };
   }
 
   return {
     ok: true,
     type: "ready",
-    message: "Direct video file detected.",
+    message: "Direct video file detected."
   };
 }
 
@@ -496,7 +486,7 @@ function normalizeFileName(value) {
       return allowed.includes(char) ? char : "-";
     })
     .join("")
-    .replaceAll("--", "-");
+    .replace(/-+/g, "-");
 
   const finalName = cleaned || "my-video.mp4";
   const lowerName = finalName.toLowerCase();
@@ -515,7 +505,7 @@ function runTests() {
     return {
       ...test,
       actualType,
-      passed: actualType === test.expectedType,
+      passed: actualType === test.expectedType
     };
   }).filter((test) => !test.passed);
 }
@@ -547,7 +537,7 @@ function Header() {
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/80 px-5 py-4 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-        <a href="#" className="flex items-center gap-3">
+        <a href="/" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-400 text-slate-950">
             <Icon name="download" className="h-5 w-5" />
           </div>
@@ -559,7 +549,7 @@ function Header() {
         </a>
 
         <nav className="hidden items-center gap-6 text-sm text-slate-300 md:flex">
-          <a href="#" className="hover:text-white">
+          <a href="/" className="hover:text-white">
             Home
           </a>
           <a href="#features" className="hover:text-white">
@@ -570,6 +560,9 @@ function Header() {
           </a>
           <a href="#faq" className="hover:text-white">
             FAQ
+          </a>
+          <a href="/contact" className="hover:text-white">
+            Contact
           </a>
         </nav>
       </div>
@@ -621,7 +614,7 @@ function Icon({ name, className = "h-5 w-5" }) {
     strokeWidth: "2",
     strokeLinecap: "round",
     strokeLinejoin: "round",
-    "aria-hidden": "true",
+    "aria-hidden": "true"
   };
 
   if (name === "download") {

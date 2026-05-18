@@ -2,34 +2,25 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Privacy Policy",
-  description: "Privacy Policy for Vido4K video downloader.",
+  description: "Privacy policy for Vido4K.",
+  alternates: { canonical: "/privacy-policy" }
 };
 
-export default function Page() {
+export default function PrivacyPolicyPage() {
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-12 text-white">
-      <div className="mx-auto max-w-3xl">
-        <Link href="/" className="text-sm text-emerald-300 hover:text-emerald-200">
-          ← Back to home
-        </Link>
-
-        <h1 className="mt-8 text-4xl font-black">Privacy Policy</h1>
-
-        <div className="mt-6 space-y-5 text-base leading-7 text-slate-300">
+      <div className="mx-auto max-w-4xl">
+        <Link href="/" className="text-sm text-emerald-300">← Back home</Link>
+        <h1 className="mt-6 text-4xl font-black">Privacy Policy</h1>
+        <div className="mt-8 space-y-6 leading-7 text-slate-300">
           <p>
-            Vido4K is designed as a browser-based tool for direct video file links.
-            We do not intentionally store user video files on our server.
+            Vido4K does not store videos on its server. Direct video file downloads are handled by the user’s browser.
           </p>
-
           <p>
-            Third-party advertising partners may use cookies, scripts, or similar
-            technologies to show ads and measure performance. These third parties
-            may collect limited device, browser, and interaction information.
+            The website may use third-party advertisements. Advertising providers may use cookies, scripts, or similar technologies according to their own policies.
           </p>
-
           <p>
-            Do not submit private, copyrighted, or sensitive video links unless you
-            own the content or have permission to use it.
+            Contact information shared by email is used only to respond to support or business questions.
           </p>
         </div>
       </div>

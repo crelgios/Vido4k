@@ -6,33 +6,23 @@ export const metadata = {
   metadataBase: new URL(siteUrl),
   title: {
     default: "Vido4K - Online Video Downloader",
-    template: "%s | Vido4K",
+    template: "%s | Vido4K"
   },
-  description:
-    "Fast browser-based video downloader for direct video file links. Download direct MP4, WebM, MOV, M4V, and OGG video files.",
-  keywords: [
-    "online video downloader",
-    "video downloader",
-    "4k video downloader",
-    "direct video downloader",
-    "mp4 video downloader",
-    "browser video downloader",
-  ],
+  description: "Fast browser-based video downloader for direct video file links.",
   alternates: {
-    canonical: "/",
+    canonical: "/"
   },
   openGraph: {
     title: "Vido4K - Online Video Downloader",
-    description:
-      "Fast browser-based video downloader for direct video file links.",
+    description: "Fast browser-based video downloader for direct video file links.",
     url: siteUrl,
     siteName: "Vido4K",
-    type: "website",
+    type: "website"
   },
   robots: {
     index: true,
-    follow: true,
-  },
+    follow: true
+  }
 };
 
 export default function RootLayout({ children }) {

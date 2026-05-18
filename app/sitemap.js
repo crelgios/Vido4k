@@ -1,12 +1,12 @@
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.vido4k.com";
 
 export default function sitemap() {
-  const routes = ["", "/faq", "/contact", "/privacy-policy", "/terms"];
+  const routes = ["", "/faq", "/contact", "/terms", "/privacy-policy"];
 
   return routes.map((route) => ({
     url: `${siteUrl}${route}`,
     lastModified: new Date(),
     changeFrequency: route === "" ? "weekly" : "monthly",
-    priority: route === "" ? 1 : 0.7,
+    priority: route === "" ? 1 : 0.7
   }));
 }
