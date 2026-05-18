@@ -13,27 +13,76 @@ const BLOCKED_DOMAINS = [
 
 const VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "m4v", "ogg"];
 
-const QUALITY_OPTIONS = [
-  "4K 2160p",
-  "2K 1440p",
-  "Full HD 1080p",
-  "HD 720p",
-  "Mobile 480p",
-  "Original file"
+const ADSTERRA_POPUNDER_SRC =
+  "https://pl29467569.effectivecpmnetwork.com/a1/a2/e0/a1a2e057be361777625bc829a13d221e.js";
+
+const TEST_CASES = [
+  {
+    name: "direct mp4 is accepted",
+    input: "https://example.com/video.mp4",
+    expectedType: "ready"
+  },
+  {
+    name: "direct webm with query is accepted",
+    input: "https://cdn.example.com/clip.webm?download=1",
+    expectedType: "ready"
+  },
+  {
+    name: "uppercase extension is accepted",
+    input: "https://example.com/VIDEO.MP4",
+    expectedType: "ready"
+  },
+  {
+    name: "protected platform is blocked",
+    input: "https://www.youtube.com/watch?v=abc123",
+    expectedType: "platform"
+  },
+  {
+    name: "mobile protected platform is blocked",
+    input: "https://m.youtube.com/watch?v=abc123",
+    expectedType: "platform"
+  },
+  {
+    name: "non video page is rejected",
+    input: "https://example.com/page",
+    expectedType: "not-video-file"
+  },
+  {
+    name: "ftp link is rejected",
+    input: "ftp://example.com/video.mp4",
+    expectedType: "protocol"
+  },
+  {
+    name: "bad url is rejected",
+    input: "not a url",
+    expectedType: "invalid"
+  }
 ];
 
-export default function Vido4KDownloader() {
+export default function VideoDownloader() {
   const [url, setUrl] = useState("");
   const [fileName, setFileName] = useState("my-video.mp4");
   const [quality, setQuality] = useState("4K 2160p");
   const [status, setStatus] = useState("idle");
   const [progress, setProgress] = useState(0);
+
   const timersRef = useRef([]);
 
   const check = useMemo(() => validateUrl(url), [url]);
   const safeFileName = useMemo(() => normalizeFileName(fileName), [fileName]);
+  const failedTests = useMemo(() => runTests(), []);
 
   useEffect(() => {
+    const existingScript = document.getElementById("adsterra-popunder-script");
+
+    if (!existingScript) {
+      const script = document.createElement("script");
+      script.id = "adsterra-popunder-script";
+      script.src = ADSTERRA_POPUNDER_SRC;
+      script.async = true;
+      document.body.appendChild(script);
+    }
+
     return () => clearTimers(timersRef);
   }, []);
 
@@ -48,66 +97,61 @@ export default function Vido4KDownloader() {
     event.preventDefault();
 
     const currentCheck = validateUrl(url);
+
     clearTimers(timersRef);
     setStatus("checking");
     setProgress(0);
 
-    const steps = [18, 44, 72, 100];
+    const steps = [20, 45, 70, 100];
 
     steps.forEach((value, index) => {
       const timer = window.setTimeout(() => {
         setProgress(value);
+
         if (index === steps.length - 1) {
           setStatus(currentCheck.ok ? "ready" : "error");
         }
-      }, 300 * (index + 1));
+      }, 350 * (index + 1));
 
       timersRef.current.push(timer);
     });
   }
 
   return (
-    <main className="min-h-screen overflow-hidden bg-slate-950 text-white">
+    <main className="min-h-screen bg-slate-950 text-white">
       <Header />
 
-      <section className="relative px-5 py-12 md:py-20">
-        <div className="absolute left-1/2 top-0 h-[420px] w-[420px] -translate-x-1/2 rounded-full bg-emerald-500/20 blur-3xl" />
-        <div className="absolute right-0 top-48 h-72 w-72 rounded-full bg-cyan-500/10 blur-3xl" />
+      <section className="relative overflow-hidden px-5 py-12 md:py-20">
+        <div className="absolute left-1/2 top-0 h-96 w-96 -translate-x-1/2 rounded-full bg-emerald-500/20 blur-3xl" />
 
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 md:grid-cols-2">
           <div>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-4 py-2 text-sm text-emerald-200">
               <Icon name="sparkles" className="h-4 w-4" />
-              Direct video file downloader
+              Fast direct video file downloader
             </div>
 
             <h1 className="text-4xl font-black tracking-tight md:text-6xl">
-              Free 4K Video Downloader
+              Online Video Downloader
             </h1>
 
             <p className="mt-5 max-w-xl text-base leading-7 text-slate-300 md:text-lg">
-              Vido4K helps you prepare browser downloads from direct video file links. It supports MP4, WebM, MOV, M4V and OGG file URLs, with clear service messages for unsupported links.
+              Paste a direct video file link and prepare a browser download.
+              Unsupported protected-platform links show a clear error instead
+              of trying to bypass restrictions.
             </p>
-
-            <div className="mt-7 flex flex-wrap gap-3 text-sm">
-              <Badge>4K 2160p</Badge>
-              <Badge>2K 1440p</Badge>
-              <Badge>MP4</Badge>
-              <Badge>WebM</Badge>
-              <Badge>No server storage</Badge>
-            </div>
           </div>
 
           <form
             onSubmit={handleSubmit}
-            className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-2xl shadow-glow backdrop-blur-xl md:p-6"
+            className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-2xl backdrop-blur-xl md:p-6"
           >
             <div className="rounded-3xl bg-slate-950 p-5 md:p-6">
               <div className="mb-5 flex items-center justify-between gap-3">
                 <div>
                   <h2 className="text-xl font-bold">Paste video link</h2>
                   <p className="mt-1 text-sm text-slate-400">
-                    Check and prepare your file
+                    Check and prepare your download
                   </p>
                 </div>
 
@@ -116,7 +160,10 @@ export default function Vido4KDownloader() {
                 </div>
               </div>
 
-              <label htmlFor="video-url" className="mb-2 block text-sm font-medium text-slate-200">
+              <label
+                htmlFor="video-url"
+                className="mb-2 block text-sm font-medium text-slate-200"
+              >
                 Video URL
               </label>
 
@@ -124,8 +171,7 @@ export default function Vido4KDownloader() {
                 <Icon name="link" className="h-5 w-5 text-slate-400" />
                 <input
                   id="video-url"
-                  type="url"
-                  inputMode="url"
+                  type="text"
                   value={url}
                   onChange={(event) => resetForNewUrl(event.target.value)}
                   placeholder="https://example.com/video.mp4"
@@ -135,25 +181,36 @@ export default function Vido4KDownloader() {
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="quality" className="mb-2 block text-sm font-medium text-slate-200">
+                  <label
+                    htmlFor="quality"
+                    className="mb-2 block text-sm font-medium text-slate-200"
+                  >
                     Quality label
                   </label>
+
                   <select
                     id="quality"
                     value={quality}
                     onChange={(event) => setQuality(event.target.value)}
                     className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none"
                   >
-                    {QUALITY_OPTIONS.map((option) => (
-                      <option key={option}>{option}</option>
-                    ))}
+                    <option>4K 2160p</option>
+                    <option>2K 1440p</option>
+                    <option>Full HD 1080p</option>
+                    <option>HD 720p</option>
+                    <option>Mobile 480p</option>
+                    <option>Original file</option>
                   </select>
                 </div>
 
                 <div>
-                  <label htmlFor="file-name" className="mb-2 block text-sm font-medium text-slate-200">
+                  <label
+                    htmlFor="file-name"
+                    className="mb-2 block text-sm font-medium text-slate-200"
+                  >
                     File name
                   </label>
+
                   <input
                     id="file-name"
                     type="text"
@@ -172,7 +229,11 @@ export default function Vido4KDownloader() {
               >
                 <Icon
                   name={status === "checking" ? "loader" : "play"}
-                  className={status === "checking" ? "h-4 w-4 animate-spin" : "h-4 w-4"}
+                  className={
+                    status === "checking"
+                      ? "h-4 w-4 animate-spin"
+                      : "h-4 w-4"
+                  }
                 />
                 {status === "checking" ? "Checking video..." : "Get Video"}
               </button>
@@ -192,81 +253,72 @@ export default function Vido4KDownloader() {
         </div>
       </section>
 
-      <section id="features" className="mx-auto grid max-w-6xl gap-4 px-5 py-8 md:grid-cols-3">
+      <section
+        id="features"
+        className="mx-auto grid max-w-6xl gap-4 px-5 py-8 md:grid-cols-3"
+      >
         <FeatureCard
           icon="shield"
           title="Safe checks"
-          text="Vido4K checks if the link is a direct video file or an unsupported protected-platform URL."
+          text="The website checks whether the link is a direct video file or a protected platform URL."
         />
+
         <FeatureCard
           icon="globe"
           title="Browser based"
-          text="Direct file links are handled through the browser. Vido4K does not upload or store user videos."
+          text="Direct file links download through the browser. This design does not store user videos."
         />
+
         <FeatureCard
           icon="file"
           title="Supported files"
-          text="Works with direct MP4, WebM, MOV, M4V and OGG file URLs."
+          text="Works with direct MP4, WebM, MOV, M4V, and OGG file URLs."
         />
       </section>
 
       <section id="how-it-works" className="mx-auto max-w-6xl px-5 py-10">
         <div className="rounded-3xl border border-white/10 bg-white/5 p-6 md:p-8">
-          <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-300">
-            Simple process
-          </p>
-          <h2 className="mt-2 text-2xl font-bold md:text-3xl">How Vido4K works</h2>
+          <h2 className="text-2xl font-bold">How it works</h2>
 
           <div className="mt-6 grid gap-4 md:grid-cols-4">
-            <Step number="1" title="Paste link" text="Add a video URL in the input box." />
-            <Step number="2" title="Check video" text="The page validates the URL and shows a status." />
-            <Step number="3" title="Prepare file" text="Choose a quality label and clean file name." />
-            <Step number="4" title="Download or retry" text="Get a download option or a retry message." />
+            <Step number="1" title="Paste link" text="Add your video URL." />
+            <Step number="2" title="Check video" text="The site validates the URL." />
+            <Step number="3" title="Prepare file" text="Direct video files are prepared." />
+            <Step number="4" title="Download or error" text="Get a button or error." />
           </div>
         </div>
       </section>
 
-      <section id="seo-content" className="mx-auto max-w-6xl px-5 py-10">
-        <div className="grid gap-5 md:grid-cols-2">
-          <ArticleCard
-            title="Online 4K video downloader"
-            text="Vido4K is made for users who want a fast and simple online video downloader experience with 4K, 2K, Full HD and MP4-focused labels."
-          />
-          <ArticleCard
-            title="Fast browser-based video tool"
-            text="The interface is lightweight, mobile-friendly and designed with SEO-ready pages, sitemap, robots.txt and metadata for Google indexing."
-          />
-        </div>
-      </section>
-
       <section id="faq" className="mx-auto max-w-6xl px-5 py-10">
-        <p className="text-sm font-semibold uppercase tracking-[0.3em] text-emerald-300">
-          Questions
-        </p>
-        <h2 className="mt-2 text-2xl font-bold md:text-3xl">Vido4K FAQ</h2>
+        <h2 className="text-2xl font-bold">FAQ</h2>
 
         <div className="mt-5 grid gap-4 md:grid-cols-2">
           <Faq
-            q="Can Vido4K download videos in 4K?"
-            a="Vido4K includes 4K and 2K quality labels. The final quality depends on the original video file."
+            q="Can this download protected platform videos?"
+            a="No. It checks unsupported links and shows an error because this site does not bypass platform restrictions."
           />
+
           <Faq
-            q="What links can users try?"
-            a="Users can paste video links and the page will show either a download option or a service retry message."
+            q="What links can users download?"
+            a="Direct video file URLs such as MP4, WebM, MOV, M4V, and OGG links that the user owns or has permission to use."
           />
+
           <Faq
             q="Will videos be stored on my server?"
-            a="No. This design works in the browser and does not upload user videos to your server."
+            a="No. This design uses browser downloads for direct file links."
           />
+
           <Faq
-            q="Can more tools be added later?"
-            a="Yes. Video compressor, trimmer, converter and audio tools can be added later as separate pages under the same Vido4K brand."
+            q="Can I add video compressor later?"
+            a="Yes. Upload-based tools like compressor, trimmer, watermark, and converter can be added separately."
           />
         </div>
       </section>
 
+      {failedTests.length > 0 && <TestStatus failedTests={failedTests} />}
+
       <footer className="border-t border-white/10 px-5 py-8 text-center text-sm text-slate-400">
-        © 2026 Vido4K. Built for fast video downloads.
+        © 2026 Vido4K. Built for direct video file downloads.
       </footer>
     </main>
   );
@@ -279,8 +331,9 @@ function ResultBox({ status, progress, check, quality, url, safeFileName }) {
         <span className="text-slate-300">
           {status === "checking" && "Fetching video information"}
           {status === "ready" && "Video file is ready"}
-          {status === "error" && "Please try again after some time."}
+          {status === "error" && "Download unavailable"}
         </span>
+
         <span className="font-semibold text-white">{progress}%</span>
       </div>
 
@@ -295,16 +348,17 @@ function ResultBox({ status, progress, check, quality, url, safeFileName }) {
         <div className="mt-4 rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm text-emerald-100">
           <div className="flex gap-3">
             <Icon name="check" className="h-5 w-5 shrink-0" />
+
             <div>
               <p className="font-semibold">Ready to download in {quality}</p>
               <p className="mt-1 text-emerald-100/80">
-                This is a direct video file link, so your browser can open or download it.
+                This is a direct video file link, so your browser can download
+                it safely.
               </p>
+
               <a
                 href={url.trim()}
                 download={safeFileName}
-                target="_blank"
-                rel="noopener noreferrer"
                 className="mt-4 inline-flex items-center gap-2 rounded-xl bg-emerald-300 px-4 py-2 font-bold text-slate-950 hover:bg-emerald-200"
               >
                 <Icon name="download" className="h-4 w-4" />
@@ -319,13 +373,12 @@ function ResultBox({ status, progress, check, quality, url, safeFileName }) {
         <div className="mt-4 rounded-2xl border border-rose-400/20 bg-rose-400/10 p-4 text-sm text-rose-100">
           <div className="flex gap-3">
             <Icon name="alert" className="h-5 w-5 shrink-0" />
+
             <div>
               <p className="font-semibold">
-                Please try again after some time.
+                Error: video cannot be downloaded from this link.
               </p>
-              <p className="mt-1 text-rose-100/80">
-                We are currently fixing this issue. Please try again later.
-              </p>
+              <p className="mt-1 text-rose-100/80">{check.message}</p>
             </div>
           </div>
         </div>
@@ -338,7 +391,11 @@ function validateUrl(value) {
   const clean = String(value || "").trim();
 
   if (!clean) {
-    return { ok: false, type: "empty" };
+    return {
+      ok: false,
+      type: "empty",
+      message: "Paste a video link first."
+    };
   }
 
   let parsed;
@@ -346,45 +403,76 @@ function validateUrl(value) {
   try {
     parsed = new URL(clean);
   } catch {
-    return { ok: false, type: "invalid" };
+    return {
+      ok: false,
+      type: "invalid",
+      message:
+        "Please enter a valid URL, for example https://example.com/video.mp4."
+    };
   }
 
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    return { ok: false, type: "protocol" };
+    return {
+      ok: false,
+      type: "protocol",
+      message: "Only http and https video links are supported."
+    };
   }
 
   const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+
   const isBlocked = BLOCKED_DOMAINS.some(
     (domain) => host === domain || host.endsWith(`.${domain}`)
   );
 
   if (isBlocked) {
-    return { ok: false, type: "platform" };
+    return {
+      ok: false,
+      type: "platform",
+      message:
+        "This looks like a protected platform link. This website cannot download protected platform videos. Use official download options or direct video files you own."
+    };
   }
 
   const pathname = parsed.pathname.toLowerCase();
+
   const hasVideoExtension = VIDEO_EXTENSIONS.some((extension) =>
     pathname.endsWith(`.${extension}`)
   );
 
   if (!hasVideoExtension) {
-    return { ok: false, type: "not-video-file" };
+    return {
+      ok: false,
+      type: "not-video-file",
+      message:
+        "This does not look like a direct video file link. Try a URL ending in MP4, WebM, MOV, M4V, or OGG."
+    };
   }
 
-  return { ok: true, type: "ready" };
+  return {
+    ok: true,
+    type: "ready",
+    message: "Direct video file detected."
+  };
 }
 
 function normalizeFileName(value) {
   const raw = String(value || "").trim();
+  const allowed =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_.";
+
   const cleaned = raw
-    .replace(/\s+/g, "-")
-    .replace(/[^a-zA-Z0-9_.-]/g, "-")
-    .replace(/-+/g, "-")
-    .replace(/^\.+/, "")
-    .slice(0, 80);
+    .split("")
+    .map((char) => {
+      if (char === " ") return "-";
+      return allowed.includes(char) ? char : "-";
+    })
+    .join("")
+    .replace(/-+/g, "-");
 
   const finalName = cleaned || "my-video.mp4";
   const lowerName = finalName.toLowerCase();
+
   const hasExtension = VIDEO_EXTENSIONS.some((extension) =>
     lowerName.endsWith(`.${extension}`)
   );
@@ -392,40 +480,72 @@ function normalizeFileName(value) {
   return hasExtension ? finalName : `${finalName}.mp4`;
 }
 
+function runTests() {
+  return TEST_CASES.map((test) => {
+    const actualType = validateUrl(test.input).type;
+
+    return {
+      ...test,
+      actualType,
+      passed: actualType === test.expectedType
+    };
+  }).filter((test) => !test.passed);
+}
+
 function clearTimers(timersRef) {
   timersRef.current.forEach((timer) => window.clearTimeout(timer));
   timersRef.current = [];
+}
+
+function TestStatus({ failedTests }) {
+  return (
+    <section className="mx-auto max-w-6xl px-5 py-6">
+      <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-5 text-sm text-amber-100">
+        <p className="font-bold">Developer checks need attention</p>
+
+        <ul className="mt-3 space-y-2">
+          {failedTests.map((test) => (
+            <li key={test.name}>
+              {test.name}: expected {test.expectedType}, got {test.actualType}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
 }
 
 function Header() {
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/80 px-5 py-4 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-        <a href="/" className="flex items-center gap-3" aria-label="Vido4K home">
+        <a href="#" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-400 text-slate-950">
             <Icon name="download" className="h-5 w-5" />
           </div>
+
           <div>
             <p className="font-black leading-none">Vido4K</p>
-            <p className="text-xs text-slate-400">Fast 4K video tool</p>
+            <p className="text-xs text-slate-400">Direct video downloader</p>
           </div>
         </a>
 
-        <nav className="hidden items-center gap-6 text-sm text-slate-300 md:flex" aria-label="Main navigation">
-          <a href="#features" className="hover:text-white">Features</a>
-          <a href="#how-it-works" className="hover:text-white">How it works</a>
-          <a href="#faq" className="hover:text-white">FAQ</a>
+        <nav className="hidden items-center gap-6 text-sm text-slate-300 md:flex">
+          <a href="#" className="hover:text-white">
+            Home
+          </a>
+          <a href="#features" className="hover:text-white">
+            Features
+          </a>
+          <a href="#how-it-works" className="hover:text-white">
+            How it works
+          </a>
+          <a href="#faq" className="hover:text-white">
+            FAQ
+          </a>
         </nav>
       </div>
     </header>
-  );
-}
-
-function Badge({ children }) {
-  return (
-    <span className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-slate-200">
-      {children}
-    </span>
   );
 }
 
@@ -435,6 +555,7 @@ function FeatureCard({ icon, title, text }) {
       <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-400/10 text-emerald-300">
         <Icon name={icon} className="h-6 w-6" />
       </div>
+
       <h3 className="text-lg font-bold">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-slate-300">{text}</p>
     </div>
@@ -447,18 +568,10 @@ function Step({ number, title, text }) {
       <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400 text-sm font-black text-slate-950">
         {number}
       </div>
+
       <h3 className="font-bold">{title}</h3>
       <p className="mt-2 text-sm leading-6 text-slate-400">{text}</p>
     </div>
-  );
-}
-
-function ArticleCard({ title, text }) {
-  return (
-    <article className="rounded-3xl border border-white/10 bg-white/[0.04] p-6">
-      <h2 className="text-xl font-bold">{title}</h2>
-      <p className="mt-3 text-sm leading-7 text-slate-300">{text}</p>
-    </article>
   );
 }
 
