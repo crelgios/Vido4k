@@ -1,4 +1,4 @@
-import VideoDownloader from "@/components/VideoDownloader";
+import VideoDownloader from "../components/VideoDownloader";
 
 export const metadata = {
   title: "Vido4K - Online Video Downloader",
