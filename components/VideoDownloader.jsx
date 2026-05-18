@@ -8,7 +8,7 @@ const BLOCKED_DOMAINS = [
   "instagram.com",
   "facebook.com",
   "fb.watch",
-  "threads.net"
+  "threads.net",
 ];
 
 const VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "m4v", "ogg"];
@@ -20,43 +20,43 @@ const TEST_CASES = [
   {
     name: "direct mp4 is accepted",
     input: "https://example.com/video.mp4",
-    expectedType: "ready"
+    expectedType: "ready",
   },
   {
     name: "direct webm with query is accepted",
     input: "https://cdn.example.com/clip.webm?download=1",
-    expectedType: "ready"
+    expectedType: "ready",
   },
   {
     name: "uppercase extension is accepted",
     input: "https://example.com/VIDEO.MP4",
-    expectedType: "ready"
+    expectedType: "ready",
   },
   {
     name: "protected platform is blocked",
     input: "https://www.youtube.com/watch?v=abc123",
-    expectedType: "platform"
+    expectedType: "platform",
   },
   {
     name: "mobile protected platform is blocked",
     input: "https://m.youtube.com/watch?v=abc123",
-    expectedType: "platform"
+    expectedType: "platform",
   },
   {
     name: "non video page is rejected",
     input: "https://example.com/page",
-    expectedType: "not-video-file"
+    expectedType: "not-video-file",
   },
   {
     name: "ftp link is rejected",
     input: "ftp://example.com/video.mp4",
-    expectedType: "protocol"
+    expectedType: "protocol",
   },
   {
     name: "bad url is rejected",
     input: "not a url",
-    expectedType: "invalid"
-  }
+    expectedType: "invalid",
+  },
 ];
 
 export default function VideoDownloader() {
@@ -73,17 +73,16 @@ export default function VideoDownloader() {
   const failedTests = useMemo(() => runTests(), []);
 
   useEffect(() => {
-    const existingScript = document.getElementById("adsterra-popunder-script");
+    // Prepare the popunder script after the page loads.
+    // Ad networks often need their script available before a user click.
+    const prepareTimer = window.setTimeout(() => {
+      loadAdsterraPopunder();
+    }, 1200);
 
-    if (!existingScript) {
-      const script = document.createElement("script");
-      script.id = "adsterra-popunder-script";
-      script.src = ADSTERRA_POPUNDER_SRC;
-      script.async = true;
-      document.body.appendChild(script);
-    }
-
-    return () => clearTimers(timersRef);
+    return () => {
+      window.clearTimeout(prepareTimer);
+      clearTimers(timersRef);
+    };
   }, []);
 
   function resetForNewUrl(nextUrl) {
@@ -95,6 +94,9 @@ export default function VideoDownloader() {
 
   function handleSubmit(event) {
     event.preventDefault();
+
+    // Also call it during the click flow. If it is already loaded, this does nothing.
+    loadAdsterraPopunder();
 
     const currentCheck = validateUrl(url);
 
@@ -282,9 +284,21 @@ export default function VideoDownloader() {
 
           <div className="mt-6 grid gap-4 md:grid-cols-4">
             <Step number="1" title="Paste link" text="Add your video URL." />
-            <Step number="2" title="Check video" text="The site validates the URL." />
-            <Step number="3" title="Prepare file" text="Direct video files are prepared." />
-            <Step number="4" title="Download or error" text="Get a button or error." />
+            <Step
+              number="2"
+              title="Check video"
+              text="The site validates the URL."
+            />
+            <Step
+              number="3"
+              title="Prepare file"
+              text="Direct video files are prepared."
+            />
+            <Step
+              number="4"
+              title="Download or error"
+              text="Get a button or error."
+            />
           </div>
         </div>
       </section>
@@ -322,6 +336,20 @@ export default function VideoDownloader() {
       </footer>
     </main>
   );
+}
+
+function loadAdsterraPopunder() {
+  if (typeof document === "undefined") return;
+
+  const existingScript = document.getElementById("adsterra-popunder-script");
+
+  if (existingScript) return;
+
+  const script = document.createElement("script");
+  script.id = "adsterra-popunder-script";
+  script.src = ADSTERRA_POPUNDER_SRC;
+  script.async = true;
+  document.body.appendChild(script);
 }
 
 function ResultBox({ status, progress, check, quality, url, safeFileName }) {
@@ -394,7 +422,7 @@ function validateUrl(value) {
     return {
       ok: false,
       type: "empty",
-      message: "Paste a video link first."
+      message: "Paste a video link first.",
     };
   }
 
@@ -407,7 +435,7 @@ function validateUrl(value) {
       ok: false,
       type: "invalid",
       message:
-        "Please enter a valid URL, for example https://example.com/video.mp4."
+        "Please enter a valid URL, for example https://example.com/video.mp4.",
     };
   }
 
@@ -415,7 +443,7 @@ function validateUrl(value) {
     return {
       ok: false,
       type: "protocol",
-      message: "Only http and https video links are supported."
+      message: "Only http and https video links are supported.",
     };
   }
 
@@ -430,7 +458,7 @@ function validateUrl(value) {
       ok: false,
       type: "platform",
       message:
-        "This looks like a protected platform link. This website cannot download protected platform videos. Use official download options or direct video files you own."
+        "This looks like a protected platform link. This website cannot download protected platform videos. Use official download options or direct video files you own.",
     };
   }
 
@@ -445,14 +473,14 @@ function validateUrl(value) {
       ok: false,
       type: "not-video-file",
       message:
-        "This does not look like a direct video file link. Try a URL ending in MP4, WebM, MOV, M4V, or OGG."
+        "This does not look like a direct video file link. Try a URL ending in MP4, WebM, MOV, M4V, or OGG.",
     };
   }
 
   return {
     ok: true,
     type: "ready",
-    message: "Direct video file detected."
+    message: "Direct video file detected.",
   };
 }
 
@@ -468,7 +496,7 @@ function normalizeFileName(value) {
       return allowed.includes(char) ? char : "-";
     })
     .join("")
-    .replace(/-+/g, "-");
+    .replaceAll("--", "-");
 
   const finalName = cleaned || "my-video.mp4";
   const lowerName = finalName.toLowerCase();
@@ -487,7 +515,7 @@ function runTests() {
     return {
       ...test,
       actualType,
-      passed: actualType === test.expectedType
+      passed: actualType === test.expectedType,
     };
   }).filter((test) => !test.passed);
 }
@@ -593,7 +621,7 @@ function Icon({ name, className = "h-5 w-5" }) {
     strokeWidth: "2",
     strokeLinecap: "round",
     strokeLinejoin: "round",
-    "aria-hidden": "true"
+    "aria-hidden": "true",
   };
 
   if (name === "download") {
