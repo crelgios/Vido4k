@@ -16,6 +16,18 @@ const VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "m4v", "ogg"];
 const ADSTERRA_POPUNDER_SRC =
   "https://pl29467569.effectivecpmnetwork.com/a1/a2/e0/a1a2e057be361777625bc829a13d221e.js";
 
+const ADSTERRA_GLOBAL_BAR_SRC =
+  "https://pl29467549.effectivecpmnetwork.com/a7/d6/af/a7d6af66590bc3bfb8f2bb7af9abe994.js";
+
+const ADSTERRA_NATIVE_SRC =
+  "https://pl29467568.effectivecpmnetwork.com/d76ee3c8af933e6d5fa2bab0b4f1c6e6/invoke.js";
+
+const ADSTERRA_NATIVE_CONTAINER_ID =
+  "container-d76ee3c8af933e6d5fa2bab0b4f1c6e6";
+
+const ADSTERRA_SMART_LINK =
+  "https://www.effectivecpmnetwork.com/u96cyqf4ax?key=63e83ecd04b9bd04425fd41880e1fc1a";
+
 const TEST_CASES = [
   {
     name: "direct mp4 is accepted",
@@ -68,9 +80,8 @@ export default function VideoDownloader() {
   const failedTests = useMemo(() => runTests(), []);
 
   useEffect(() => {
-    // Popunder scripts usually need to be loaded before the user click.
-    // The Get Video button click then becomes the user interaction trigger.
-    loadAdsterraPopunder();
+    loadExternalAdScript("adsterra-popunder-script", ADSTERRA_POPUNDER_SRC);
+    loadExternalAdScript("adsterra-global-bar-script", ADSTERRA_GLOBAL_BAR_SRC);
 
     return () => clearTimers(timersRef);
   }, []);
@@ -85,8 +96,8 @@ export default function VideoDownloader() {
   function handleSubmit(event) {
     event.preventDefault();
 
-    // Keep this here too, in case the script was blocked or not ready on first page load.
-    loadAdsterraPopunder();
+    loadExternalAdScript("adsterra-popunder-script", ADSTERRA_POPUNDER_SRC);
+    loadExternalAdScript("adsterra-global-bar-script", ADSTERRA_GLOBAL_BAR_SRC);
 
     const currentCheck = validateUrl(url);
 
@@ -230,6 +241,8 @@ export default function VideoDownloader() {
                 {status === "checking" ? "Checking video..." : "Get Video"}
               </button>
 
+              <AdBlock />
+
               {status !== "idle" && (
                 <ResultBox
                   status={status}
@@ -313,8 +326,8 @@ export default function VideoDownloader() {
           />
 
           <Faq
-            q="Why is the popunder not showing every click?"
-            a="Popunder ads depend on the ad network, browser popup rules, ad blockers, approval status, and session limits. The code loads the script, but the ad network decides when to show it."
+            q="Can I add video compressor later?"
+            a="Yes. Upload-based tools like compressor, trimmer, watermark, and converter can be added separately."
           />
         </div>
       </section>
@@ -322,24 +335,49 @@ export default function VideoDownloader() {
       {failedTests.length > 0 && <TestStatus failedTests={failedTests} />}
 
       <footer className="border-t border-white/10 px-5 py-8 text-center text-sm text-slate-400">
-        © 2026 Vido4K. Built for direct video file downloads.
+        © 2026 Video Downloader Tool. Built for direct video file downloads.
       </footer>
     </main>
   );
 }
 
-function loadAdsterraPopunder() {
+function loadExternalAdScript(id, src) {
   if (typeof document === "undefined") return;
+  if (!src) return;
 
-  const existingScript = document.getElementById("adsterra-popunder-script");
-
+  const existingScript = document.getElementById(id);
   if (existingScript) return;
 
   const script = document.createElement("script");
-  script.id = "adsterra-popunder-script";
-  script.src = ADSTERRA_POPUNDER_SRC;
+  script.id = id;
+  script.src = src;
   script.async = true;
+  script.setAttribute("data-cfasync", "false");
   document.body.appendChild(script);
+}
+
+function AdBlock() {
+  useEffect(() => {
+    loadExternalAdScript("adsterra-native-script", ADSTERRA_NATIVE_SRC);
+  }, []);
+
+  return (
+    <div className="mt-5 space-y-3">
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-3 text-center text-xs text-slate-400">
+        <p className="mb-2">Advertisement</p>
+        <div id={ADSTERRA_NATIVE_CONTAINER_ID} className="min-h-[90px]" />
+      </div>
+
+      <a
+        href={ADSTERRA_SMART_LINK}
+        target="_blank"
+        rel="nofollow sponsored noopener noreferrer"
+        className="block rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-center text-sm font-semibold text-emerald-300 hover:bg-white/5"
+      >
+        Sponsored link
+      </a>
+    </div>
+  );
 }
 
 function ResultBox({ status, progress, check, quality, url, safeFileName }) {
@@ -437,7 +475,7 @@ function validateUrl(value) {
     };
   }
 
-  const host = parsed.hostname.toLowerCase().replace(/^www\./, "");
+  const host = parsed.hostname.toLowerCase().replace("www.", "");
 
   const isBlocked = BLOCKED_DOMAINS.some(
     (domain) => host === domain || host.endsWith(`.${domain}`)
@@ -486,7 +524,7 @@ function normalizeFileName(value) {
       return allowed.includes(char) ? char : "-";
     })
     .join("")
-    .replace(/-+/g, "-");
+    .replaceAll("--", "-");
 
   const finalName = cleaned || "my-video.mp4";
   const lowerName = finalName.toLowerCase();
@@ -537,19 +575,19 @@ function Header() {
   return (
     <header className="sticky top-0 z-20 border-b border-white/10 bg-slate-950/80 px-5 py-4 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
-        <a href="/" className="flex items-center gap-3">
+        <a href="#" className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-400 text-slate-950">
             <Icon name="download" className="h-5 w-5" />
           </div>
 
           <div>
-            <p className="font-black leading-none">Vido4K</p>
+            <p className="font-black leading-none">VideoDL</p>
             <p className="text-xs text-slate-400">Direct video downloader</p>
           </div>
         </a>
 
         <nav className="hidden items-center gap-6 text-sm text-slate-300 md:flex">
-          <a href="/" className="hover:text-white">
+          <a href="#" className="hover:text-white">
             Home
           </a>
           <a href="#features" className="hover:text-white">
@@ -560,9 +598,6 @@ function Header() {
           </a>
           <a href="#faq" className="hover:text-white">
             FAQ
-          </a>
-          <a href="/contact" className="hover:text-white">
-            Contact
           </a>
         </nav>
       </div>
