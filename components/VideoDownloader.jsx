@@ -66,9 +66,38 @@ const TEST_CASES = [
   }
 ];
 
+const SITE_NAME_TEST_CASES = [
+  {
+    name: "suggests site name from simple domain",
+    input: "https://example.com/video.mp4",
+    expectedSiteName: "example"
+  },
+  {
+    name: "suggests site name from subdomain",
+    input: "https://cdn.example.com/clip.webm?download=1",
+    expectedSiteName: "example"
+  },
+  {
+    name: "suggests site name from Facebook URL",
+    input: "https://www.facebook.com/watch/?v=123456",
+    expectedSiteName: "facebook"
+  },
+  {
+    name: "suggests site name from protected platform URL",
+    input: "https://www.youtube.com/watch?v=abc123",
+    expectedSiteName: "youtube"
+  },
+  {
+    name: "keeps current site name for invalid URL",
+    input: "not a url",
+    currentSiteName: "my-video",
+    expectedSiteName: "my-video"
+  }
+];
+
 export default function VideoDownloader() {
   const [url, setUrl] = useState("");
-  const [fileName, setFileName] = useState("my-video.mp4");
+  const [siteName, setSiteName] = useState("my-video");
   const [quality, setQuality] = useState("4K 2160p");
   const [status, setStatus] = useState("idle");
   const [progress, setProgress] = useState(0);
@@ -76,7 +105,7 @@ export default function VideoDownloader() {
   const timersRef = useRef([]);
 
   const check = useMemo(() => validateUrl(url), [url]);
-  const safeFileName = useMemo(() => normalizeFileName(fileName), [fileName]);
+  const safeFileName = useMemo(() => normalizeFileName(siteName), [siteName]);
   const failedTests = useMemo(() => runTests(), []);
 
   useEffect(() => {
@@ -89,6 +118,7 @@ export default function VideoDownloader() {
   function resetForNewUrl(nextUrl) {
     clearTimers(timersRef);
     setUrl(nextUrl);
+    setSiteName(getSiteNameFromUrl(nextUrl, siteName));
     setStatus("idle");
     setProgress(0);
   }
@@ -208,19 +238,19 @@ export default function VideoDownloader() {
 
                 <div>
                   <label
-                    htmlFor="file-name"
+                    htmlFor="site-name"
                     className="mb-2 block text-sm font-medium text-slate-200"
                   >
-                    File name
+                    Site name
                   </label>
 
                   <input
-                    id="file-name"
+                    id="site-name"
                     type="text"
-                    value={fileName}
-                    onChange={(event) => setFileName(event.target.value)}
+                    value={siteName}
+                    onChange={(event) => setSiteName(event.target.value)}
                     className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none"
-                    placeholder="my-video.mp4"
+                    placeholder="facebook"
                   />
                 </div>
               </div>
@@ -512,6 +542,54 @@ function validateUrl(value) {
   };
 }
 
+function getSiteNameFromUrl(value, fallbackSiteName = "my-video") {
+  const clean = String(value || "").trim();
+
+  if (!clean) return fallbackSiteName || "my-video";
+
+  try {
+    const parsed = new URL(clean);
+    const host = parsed.hostname.toLowerCase().replace(/^www\./, "").replace(/^m\./, "");
+
+    if (!host) return fallbackSiteName || "my-video";
+
+    const parts = host.split(".").filter(Boolean);
+    let siteName = parts[0] || fallbackSiteName || "my-video";
+
+    if (parts.length >= 2) {
+      const multiPartTlds = new Set(["co.in", "co.uk", "com.au", "com.br", "com.tr", "com.pk"]);
+      const lastTwoParts = parts.slice(-2).join(".");
+
+      if (multiPartTlds.has(lastTwoParts) && parts.length >= 3) {
+        siteName = parts[parts.length - 3];
+      } else {
+        siteName = parts[parts.length - 2];
+      }
+    }
+
+    return normalizeSiteName(siteName || fallbackSiteName || "my-video");
+  } catch {
+    return fallbackSiteName || "my-video";
+  }
+}
+
+function normalizeSiteName(value) {
+  const raw = String(value || "").trim().toLowerCase();
+  const allowed = "abcdefghijklmnopqrstuvwxyz0123456789-_";
+
+  const cleaned = raw
+    .split("")
+    .map((char) => {
+      if (char === " ") return "-";
+      return allowed.includes(char) ? char : "-";
+    })
+    .join("")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return cleaned || "my-video";
+}
+
 function normalizeFileName(value) {
   const raw = String(value || "").trim();
   const allowed =
@@ -537,15 +615,30 @@ function normalizeFileName(value) {
 }
 
 function runTests() {
-  return TEST_CASES.map((test) => {
+  const validationResults = TEST_CASES.map((test) => {
     const actualType = validateUrl(test.input).type;
 
     return {
       ...test,
       actualType,
+      expected: test.expectedType,
+      actual: actualType,
       passed: actualType === test.expectedType
     };
-  }).filter((test) => !test.passed);
+  });
+
+  const siteNameResults = SITE_NAME_TEST_CASES.map((test) => {
+    const actualSiteName = getSiteNameFromUrl(test.input, test.currentSiteName);
+
+    return {
+      ...test,
+      expected: test.expectedSiteName,
+      actual: actualSiteName,
+      passed: actualSiteName === test.expectedSiteName
+    };
+  });
+
+  return [...validationResults, ...siteNameResults].filter((test) => !test.passed);
 }
 
 function clearTimers(timersRef) {
@@ -562,7 +655,7 @@ function TestStatus({ failedTests }) {
         <ul className="mt-3 space-y-2">
           {failedTests.map((test) => (
             <li key={test.name}>
-              {test.name}: expected {test.expectedType}, got {test.actualType}
+              {test.name}: expected {test.expected}, got {test.actual}
             </li>
           ))}
         </ul>

@@ -1,23 +1,18 @@
-import Link from "next/link";
+import SimplePage from "../../components/SimplePage";
 
 export const metadata = {
-  title: "Terms of Use",
-  description: "Terms of use for Vido4K."
+  title: "Terms",
+  description: "Vido4K terms of use.",
+  alternates: { canonical: "/terms" }
 };
 
 export default function TermsPage() {
   return (
-    <main className="min-h-screen bg-slate-950 px-5 py-12 text-white">
-      <div className="mx-auto max-w-3xl">
-        <Link href="/" className="text-sm text-emerald-300">← Back to Home</Link>
-        <h1 className="mt-6 text-4xl font-black">Terms of Use</h1>
-        <div className="mt-8 space-y-5 leading-7 text-slate-300">
-          <p>Vido4K is provided as a browser-based tool for direct video file links that users own or have permission to use.</p>
-          <p>Users are responsible for ensuring they have the legal right to access and download any file they use with this website.</p>
-          <p>Do not use this website to bypass restrictions, copy protected content, or violate any third-party terms.</p>
-          <p>The website may include sponsored links and advertising from third-party ad networks.</p>
-        </div>
-      </div>
-    </main>
+    <SimplePage title="Terms of Use" description="Rules for using Vido4K.">
+      <p>Use Vido4K only for video files that you own, created, or have permission to download.</p>
+      <p>You are responsible for following copyright laws and the rules of any third-party websites you use.</p>
+      <p>Vido4K does not promise that every URL will work. Protected platform links and non-video links may show an error.</p>
+      <p>Advertisements may be displayed through third-party ad networks.</p>
+    </SimplePage>
   );
 }

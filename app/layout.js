@@ -1,6 +1,6 @@
 import "./globals.css";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.vido4k.com";
+const siteUrl = "https://vido4k.aliwvide.com";
 
 export const metadata = {
   metadataBase: new URL(siteUrl),
@@ -12,13 +12,6 @@ export const metadata = {
   alternates: {
     canonical: "/"
   },
-  openGraph: {
-    title: "Vido4K - Online Video Downloader",
-    description: "Fast browser-based video downloader for direct video file links.",
-    url: siteUrl,
-    siteName: "Vido4K",
-    type: "website"
-  },
   robots: {
     index: true,
     follow: true,
@@ -26,7 +19,19 @@ export const metadata = {
       index: true,
       follow: true
     }
+  },
+  openGraph: {
+    title: "Vido4K - Online Video Downloader",
+    description: "Fast browser-based video downloader for direct video file links.",
+    url: siteUrl,
+    siteName: "Vido4K",
+    type: "website"
   }
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1
 };
 
 export default function RootLayout({ children }) {
