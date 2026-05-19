@@ -9,29 +9,49 @@ const PLANS = [
   "Fast Processing Access"
 ];
 
+const CATEGORIES = ["Movies", "Websites"];
+
 const ACCESS_TESTS = [
   {
     name: "code prefix is valid",
-    actual: createAccessId("4K Premium Access").startsWith("VIDO4K-4K"),
+    actual: createAccessId("4K Premium Access", "Movies", "netflix").startsWith("VIDO4K-4K-MOVIES"),
     expected: true
   },
   {
     name: "access id has enough length",
-    actual: createAccessId("Priority Download Access").length >= 18,
+    actual: createAccessId("Priority Download Access", "Websites", "example").length >= 25,
+    expected: true
+  },
+  {
+    name: "website name is normalized",
+    actual: normalizeWebsiteName("https://www.example.com/watch"),
+    expected: "example"
+  },
+  {
+    name: "category list has movies",
+    actual: CATEGORIES.includes("Movies"),
+    expected: true
+  },
+  {
+    name: "category list has websites",
+    actual: CATEGORIES.includes("Websites"),
     expected: true
   }
 ];
 
 export default function PremiumUnlock() {
   const [plan, setPlan] = useState(PLANS[0]);
-  const [email, setEmail] = useState("");
+  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [website, setWebsite] = useState("");
   const [status, setStatus] = useState("idle");
   const [accessId, setAccessId] = useState("");
   const failedTests = useMemo(() => runAccessTests(), []);
 
   function handleGenerate(event) {
     event.preventDefault();
-    setAccessId(createAccessId(plan));
+
+    const normalizedWebsite = normalizeWebsiteName(website || "website");
+    setAccessId(createAccessId(plan, category, normalizedWebsite));
     setStatus("loading");
 
     window.setTimeout(() => {
@@ -57,7 +77,7 @@ export default function PremiumUnlock() {
             </h1>
 
             <p className="mt-5 max-w-xl text-base leading-7 text-slate-300 md:text-lg">
-              Generate your premium unlock request and check today&apos;s access availability for faster processing, priority access, and upgraded video tools.
+              Select a category, enter a website name, generate your premium unlock request, and check today&apos;s access availability.
             </p>
 
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
@@ -94,15 +114,29 @@ export default function PremiumUnlock() {
                 ))}
               </select>
 
-              <label htmlFor="email" className="mb-2 mt-4 block text-sm font-medium text-slate-200">
-                Email or username
+              <label htmlFor="category" className="mb-2 mt-4 block text-sm font-medium text-slate-200">
+                Select category
+              </label>
+              <select
+                id="category"
+                value={category}
+                onChange={(event) => setCategory(event.target.value)}
+                className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none"
+              >
+                {CATEGORIES.map((item) => (
+                  <option key={item}>{item}</option>
+                ))}
+              </select>
+
+              <label htmlFor="website" className="mb-2 mt-4 block text-sm font-medium text-slate-200">
+                Website
               </label>
               <input
-                id="email"
+                id="website"
                 type="text"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                placeholder="Enter your email or username"
+                value={website}
+                onChange={(event) => setWebsite(event.target.value)}
+                placeholder="Enter website name"
                 className="w-full rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-sm text-white outline-none placeholder:text-slate-500"
               />
 
@@ -121,6 +155,17 @@ export default function PremiumUnlock() {
                   <p className="mt-2 break-all rounded-xl bg-slate-900 px-3 py-3 font-mono text-sm text-emerald-300">
                     {accessId || "Preparing..."}
                   </p>
+
+                  <div className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+                    <div className="rounded-xl bg-slate-900 px-3 py-3">
+                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Category</p>
+                      <p className="mt-1 text-slate-200">{category}</p>
+                    </div>
+                    <div className="rounded-xl bg-slate-900 px-3 py-3">
+                      <p className="text-xs uppercase tracking-[0.18em] text-slate-500">Website</p>
+                      <p className="mt-1 text-slate-200">{normalizeWebsiteName(website || "website")}</p>
+                    </div>
+                  </div>
 
                   {status === "loading" && (
                     <div className="mt-4 h-2 overflow-hidden rounded-full bg-slate-800">
@@ -151,8 +196,8 @@ export default function PremiumUnlock() {
           <h2 className="text-2xl font-bold">Premium Features</h2>
           <div className="mt-6 grid gap-4 md:grid-cols-4">
             <Step number="1" title="Select Access" text="Choose the premium access type you want." />
-            <Step number="2" title="Enter Details" text="Add your email or username to create a request." />
-            <Step number="3" title="Generate ID" text="Receive a unique Vido4K premium access ID." />
+            <Step number="2" title="Choose Category" text="Select Movies or Websites from the category list." />
+            <Step number="3" title="Enter Website" text="Add the website name for the unlock request." />
             <Step number="4" title="Check Status" text="See current daily availability instantly." />
           </div>
         </div>
@@ -167,17 +212,70 @@ export default function PremiumUnlock() {
   );
 }
 
-function createAccessId(plan) {
+function createAccessId(plan, category, website) {
   const cleanPlan = String(plan || "PREMIUM")
     .toUpperCase()
     .replace(/[^A-Z0-9]+/g, "-")
     .replace(/^-|-$/g, "")
     .split("-")[0];
 
+  const cleanCategory = String(category || "ACCESS")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  const cleanWebsite = normalizeWebsiteName(website || "website")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "-");
+
   const first = Math.random().toString(36).slice(2, 8).toUpperCase();
   const second = Math.random().toString(36).slice(2, 8).toUpperCase();
 
-  return `VIDO4K-${cleanPlan || "PREMIUM"}-${first}-${second}`;
+  return `VIDO4K-${cleanPlan || "PREMIUM"}-${cleanCategory || "ACCESS"}-${cleanWebsite || "WEBSITE"}-${first}-${second}`;
+}
+
+function normalizeWebsiteName(value) {
+  const raw = String(value || "").trim().toLowerCase();
+
+  if (!raw) return "website";
+
+  try {
+    const parsed = new URL(raw.includes("://") ? raw : `https://${raw}`);
+    const host = parsed.hostname.replace(/^www\./, "").replace(/^m\./, "");
+    const parts = host.split(".").filter(Boolean);
+
+    if (parts.length >= 2) {
+      const multiPartTlds = new Set(["co.in", "co.uk", "com.au", "com.br", "com.tr", "com.pk"]);
+      const lastTwoParts = parts.slice(-2).join(".");
+
+      if (multiPartTlds.has(lastTwoParts) && parts.length >= 3) {
+        return cleanText(parts[parts.length - 3]);
+      }
+
+      return cleanText(parts[parts.length - 2]);
+    }
+
+    return cleanText(parts[0] || raw);
+  } catch {
+    return cleanText(raw);
+  }
+}
+
+function cleanText(value) {
+  const allowed = "abcdefghijklmnopqrstuvwxyz0123456789-_";
+  const cleaned = String(value || "")
+    .trim()
+    .toLowerCase()
+    .split("")
+    .map((char) => {
+      if (char === " ") return "-";
+      return allowed.includes(char) ? char : "-";
+    })
+    .join("")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+  return cleaned || "website";
 }
 
 function runAccessTests() {
