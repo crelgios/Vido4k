@@ -686,6 +686,9 @@ function Header() {
           <a href="#features" className="hover:text-white">
             Features
           </a>
+          <a href="/premium-unlock" className="text-emerald-300 hover:text-emerald-200">
+            Premium
+          </a>
           <a href="#how-it-works" className="hover:text-white">
             How it works
           </a>

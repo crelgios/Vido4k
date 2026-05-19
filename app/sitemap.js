@@ -21,6 +21,12 @@ export default function sitemap() {
       priority: 0.8
     },
     {
+      url: `${baseUrl}/premium-unlock`,
+      lastModified,
+      changeFrequency: "weekly",
+      priority: 0.8
+    },
+    {
       url: `${baseUrl}/contact`,
       lastModified,
       changeFrequency: "monthly",

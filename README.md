@@ -34,3 +34,8 @@ https://vido4k.aliwvide.com/sitemap.xml
 ## Latest change
 
 When a user pastes a URL into the Video URL field, the File name field now automatically changes to the website/domain name, for example `https://example.com/video.mp4` becomes `example-com.mp4`.
+
+
+## Premium Unlock
+
+New page added at `/premium-unlock` for the Vido4K Premium Unlock request flow.
