@@ -8,16 +8,12 @@ export default function TermsPage() {
   return (
     <main className="min-h-screen bg-slate-950 px-5 py-12 text-white">
       <div className="mx-auto max-w-4xl">
-        <nav className="mb-8 flex gap-4 text-sm text-slate-300">
-          <a href="/" className="hover:text-white">Home</a>
-          <a href="/privacy-policy" className="hover:text-white">Privacy Policy</a>
-          <a href="/contact" className="hover:text-white">Contact</a>
-        </nav>
-        <h1 className="text-4xl font-black">Terms of Use</h1>
-        <div className="mt-6 space-y-4 leading-7 text-slate-300">
-          <p>Use Vido4K only for content you own, control, or have permission to access and download.</p>
-          <p>Do not use this website to bypass restrictions, violate third-party terms, or access protected content without authorization.</p>
-          <p>Advertisements and sponsored links may be displayed on the website.</p>
+        <a href="/" className="text-sm font-semibold text-emerald-300">← Back to Home</a>
+        <h1 className="mt-8 text-4xl font-black">Terms of Use</h1>
+        <div className="mt-8 space-y-5 leading-7 text-slate-300">
+          <p>Vido4K is provided as a browser-based tool for direct video file links and site access availability checks.</p>
+          <p>You are responsible for using the website lawfully and only with content you own or have permission to access.</p>
+          <p>Vido4K does not guarantee access, availability, or compatibility with every link or service.</p>
         </div>
       </div>
     </main>

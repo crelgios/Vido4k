@@ -1,26 +1,20 @@
-# Vido4K Next.js Project
+# Vido4K
 
-## Deploy on Vercel
+Deployable Next.js App Router project for Vido4K.
 
-1. Upload this project to GitHub or Vercel.
-2. Set environment variable:
+## Setup
+
+```bash
+npm install
+npm run dev
+```
+
+## Vercel environment variable
+
+Set:
 
 ```txt
 NEXT_PUBLIC_SITE_URL=https://vido4k.aliwvide.com
 ```
 
-3. Deploy.
-4. Submit sitemap in Google Search Console:
-
-```txt
-https://vido4k.aliwvide.com/sitemap.xml
-```
-
-## Main pages
-
-- `/` Video downloader page
-- `/premium-unlock` Premium Unlock page
-- `/faq`
-- `/contact`
-- `/terms`
-- `/privacy-policy`
+Then deploy.

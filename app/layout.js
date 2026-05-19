@@ -8,7 +8,7 @@ export const metadata = {
     default: "Vido4K - Online Video Downloader",
     template: "%s | Vido4K"
   },
-  description: "Fast browser-based video downloader for direct video file links and premium access checks.",
+  description: "Fast browser-based video downloader for direct video file links and Vido4K premium unlock tools.",
   alternates: {
     canonical: "/"
   },
@@ -18,10 +18,6 @@ export const metadata = {
     url: siteUrl,
     siteName: "Vido4K",
     type: "website"
-  },
-  robots: {
-    index: true,
-    follow: true
   }
 };
 

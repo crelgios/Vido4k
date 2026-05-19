@@ -1,7 +1,13 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 html {
@@ -13,6 +19,7 @@ body {
   background: #020617;
 }
 
-a {
-  text-decoration: none;
+select option {
+  background: #0f172a;
+  color: #ffffff;
 }

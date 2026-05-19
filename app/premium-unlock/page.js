@@ -19,19 +19,8 @@ const WEBSITE_OPTIONS = {
     "Cinema Library",
     "HD Movies"
   ],
-  Websites: [
-    "Vido4K",
-    "Media Hub",
-    "Creator Portal",
-    "Cloud Tools",
-    "Streaming Hub",
-    "Video Plus",
-    "Premium Portal",
-    "Digital Library",
-    "Creator Tools",
-    "Online Media"
-  ]
-};
+Websites: ["Vido4K", "Media Hub", "Creator Portal", "Cloud Tools", "Xnxx", "Pornhub", "XVideos", "PornHub", "xHamster", "XNXX", "YouPorn", "RedTube", "Porn Tube8", "Brezzers", "Naughty America", "PornHat", "Porn300", "PornOne", "SexVid", "TnaFlix", "Fuq Ok", "Beeg", "TubeGalore", "XGroovy", "SuperPorn", "Sxyprn", "ZbPorn", "TheyAreHuge", "PerfectGirls", "PussySpace", "CumLouder", "PornDoe", "Xbabe", "VipWank", "AlohaTube", "MatureTube", "TubeV", "Qorno", "4Tube", "PornTube", "BigPorn", "Porn.biz", "ColliderPorn", "Smutr", "Shameless", "HQPorn", "LobsterTube", "PornID"] 
+  };
 
 const ADSTERRA_POPUNDER_SRC =
   "https://pl29467569.effectivecpmnetwork.com/a1/a2/e0/a1a2e057be361777625bc829a13d221e.js";

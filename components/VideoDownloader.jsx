@@ -16,7 +16,7 @@ const VIDEO_EXTENSIONS = ["mp4", "webm", "mov", "m4v", "ogg"];
 const ADSTERRA_POPUNDER_SRC =
   "https://pl29467569.effectivecpmnetwork.com/a1/a2/e0/a1a2e057be361777625bc829a13d221e.js";
 
-const ADSTERRA_SOCIAL_BAR_SRC =
+const ADSTERRA_GLOBAL_BAR_SRC =
   "https://pl29467549.effectivecpmnetwork.com/a7/d6/af/a7d6af66590bc3bfb8f2bb7af9abe994.js";
 
 const ADSTERRA_NATIVE_SRC =
@@ -41,7 +41,7 @@ const TEST_CASES = [
 const SITE_NAME_TEST_CASES = [
   { name: "suggests site name from simple domain", input: "https://example.com/video.mp4", expectedSiteName: "example" },
   { name: "suggests site name from subdomain", input: "https://cdn.example.com/clip.webm?download=1", expectedSiteName: "example" },
-  { name: "suggests site name from Facebook URL", input: "https://www.facebook.com/watch/?v=123456", expectedSiteName: "facebook" },
+  { name: "suggests site name from protected platform URL", input: "https://www.youtube.com/watch?v=abc123", expectedSiteName: "youtube" },
   { name: "keeps current site name for invalid URL", input: "not a url", currentSiteName: "my-video", expectedSiteName: "my-video" }
 ];
 
@@ -60,7 +60,7 @@ export default function VideoDownloader() {
 
   useEffect(() => {
     loadExternalAdScript("adsterra-popunder-script", ADSTERRA_POPUNDER_SRC);
-    loadExternalAdScript("adsterra-social-bar-script", ADSTERRA_SOCIAL_BAR_SRC);
+    loadExternalAdScript("adsterra-global-bar-script", ADSTERRA_GLOBAL_BAR_SRC);
 
     return () => clearTimers(timersRef);
   }, []);
@@ -77,10 +77,9 @@ export default function VideoDownloader() {
     event.preventDefault();
 
     loadExternalAdScript("adsterra-popunder-script", ADSTERRA_POPUNDER_SRC);
-    loadExternalAdScript("adsterra-social-bar-script", ADSTERRA_SOCIAL_BAR_SRC);
+    loadExternalAdScript("adsterra-global-bar-script", ADSTERRA_GLOBAL_BAR_SRC);
 
     const currentCheck = validateUrl(url);
-
     clearTimers(timersRef);
     setStatus("checking");
     setProgress(0);
@@ -90,7 +89,6 @@ export default function VideoDownloader() {
     steps.forEach((value, index) => {
       const timer = window.setTimeout(() => {
         setProgress(value);
-
         if (index === steps.length - 1) {
           setStatus(currentCheck.ok ? "ready" : "error");
         }
@@ -114,13 +112,20 @@ export default function VideoDownloader() {
               Fast direct video file downloader
             </div>
 
-            <h1 className="text-4xl font-black tracking-tight md:text-6xl">
-              Online Video Downloader
-            </h1>
+            <h1 className="text-4xl font-black tracking-tight md:text-6xl">Online Video Downloader</h1>
 
             <p className="mt-5 max-w-xl text-base leading-7 text-slate-300 md:text-lg">
               Paste a direct video file link and prepare a browser download. Unsupported protected-platform links show a clear error instead of trying to bypass restrictions.
             </p>
+
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a href="/premium-unlock" className="rounded-2xl bg-emerald-400 px-5 py-3 text-sm font-bold text-slate-950 hover:bg-emerald-300">
+                Premium Unlock
+              </a>
+              <a href="#faq" className="rounded-2xl border border-white/10 px-5 py-3 text-sm font-bold text-slate-200 hover:bg-white/5">
+                View FAQ
+              </a>
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="rounded-3xl border border-white/10 bg-white/10 p-4 shadow-2xl backdrop-blur-xl md:p-6">
@@ -136,10 +141,7 @@ export default function VideoDownloader() {
                 </div>
               </div>
 
-              <label htmlFor="video-url" className="mb-2 block text-sm font-medium text-slate-200">
-                Video URL
-              </label>
-
+              <label htmlFor="video-url" className="mb-2 block text-sm font-medium text-slate-200">Video URL</label>
               <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-slate-900 px-4 py-3">
                 <Icon name="link" className="h-5 w-5 text-slate-400" />
                 <input
@@ -154,10 +156,7 @@ export default function VideoDownloader() {
 
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="quality" className="mb-2 block text-sm font-medium text-slate-200">
-                    Quality label
-                  </label>
-
+                  <label htmlFor="quality" className="mb-2 block text-sm font-medium text-slate-200">Quality label</label>
                   <select
                     id="quality"
                     value={quality}
@@ -174,10 +173,7 @@ export default function VideoDownloader() {
                 </div>
 
                 <div>
-                  <label htmlFor="site-name" className="mb-2 block text-sm font-medium text-slate-200">
-                    Site name
-                  </label>
-
+                  <label htmlFor="site-name" className="mb-2 block text-sm font-medium text-slate-200">Site name</label>
                   <input
                     id="site-name"
                     type="text"
@@ -232,7 +228,7 @@ export default function VideoDownloader() {
           <Faq q="Can this download protected platform videos?" a="No. It checks unsupported links and shows an error because this site does not bypass platform restrictions." />
           <Faq q="What links can users download?" a="Direct video file URLs such as MP4, WebM, MOV, M4V, and OGG links that the user owns or has permission to use." />
           <Faq q="Will videos be stored on my server?" a="No. This design uses browser downloads for direct file links." />
-          <Faq q="Can I add video compressor later?" a="Yes. Upload-based tools like compressor, trimmer, watermark, and converter can be added separately." />
+          <Faq q="Can I use Premium Unlock?" a="Yes. Use the Premium Unlock page to check today’s availability." />
         </div>
       </section>
 
@@ -248,10 +244,8 @@ export default function VideoDownloader() {
 function loadExternalAdScript(id, src) {
   if (typeof document === "undefined") return;
   if (!src) return;
-
   const existingScript = document.getElementById(id);
   if (existingScript) return;
-
   const script = document.createElement("script");
   script.id = id;
   script.src = src;
@@ -260,26 +254,9 @@ function loadExternalAdScript(id, src) {
   document.body.appendChild(script);
 }
 
-function loadNativeAd() {
-  if (typeof document === "undefined") return;
-
-  const container = document.getElementById(ADSTERRA_NATIVE_CONTAINER_ID);
-  if (!container) return;
-
-  const existingScript = document.getElementById("adsterra-native-script");
-  if (existingScript) return;
-
-  const script = document.createElement("script");
-  script.id = "adsterra-native-script";
-  script.src = ADSTERRA_NATIVE_SRC;
-  script.async = true;
-  script.setAttribute("data-cfasync", "false");
-  document.body.appendChild(script);
-}
-
 function AdBlock() {
   useEffect(() => {
-    loadNativeAd();
+    loadExternalAdScript("adsterra-native-script-home", ADSTERRA_NATIVE_SRC);
   }, []);
 
   return (
@@ -288,13 +265,7 @@ function AdBlock() {
         <p className="mb-2">Advertisement</p>
         <div id={ADSTERRA_NATIVE_CONTAINER_ID} className="min-h-[90px]" />
       </div>
-
-      <a
-        href={ADSTERRA_SMART_LINK}
-        target="_blank"
-        rel="nofollow sponsored noopener noreferrer"
-        className="block rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-center text-sm font-semibold text-emerald-300 hover:bg-white/5"
-      >
+      <a href={ADSTERRA_SMART_LINK} target="_blank" rel="nofollow sponsored noopener noreferrer" className="block rounded-2xl border border-white/10 bg-slate-900 px-4 py-3 text-center text-sm font-semibold text-emerald-300 hover:bg-white/5">
         Sponsored link
       </a>
     </div>
@@ -350,68 +321,43 @@ function ResultBox({ status, progress, check, quality, url, safeFileName }) {
 
 function validateUrl(value) {
   const clean = String(value || "").trim();
-
-  if (!clean) {
-    return { ok: false, type: "empty", message: "Paste a video link first." };
-  }
-
+  if (!clean) return { ok: false, type: "empty", message: "Paste a video link first." };
   let parsed;
   try {
     parsed = new URL(clean);
   } catch {
     return { ok: false, type: "invalid", message: "Please enter a valid URL, for example https://example.com/video.mp4." };
   }
-
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
     return { ok: false, type: "protocol", message: "Only http and https video links are supported." };
   }
-
   const host = parsed.hostname.toLowerCase().replace("www.", "");
   const isBlocked = BLOCKED_DOMAINS.some((domain) => host === domain || host.endsWith(`.${domain}`));
-
   if (isBlocked) {
-    return {
-      ok: false,
-      type: "platform",
-      message: "This looks like a protected platform link. This website cannot download protected platform videos. Use official download options or direct video files you own."
-    };
+    return { ok: false, type: "platform", message: "This looks like a protected platform link. This website cannot download protected platform videos. Use official download options or direct video files you own." };
   }
-
   const pathname = parsed.pathname.toLowerCase();
   const hasVideoExtension = VIDEO_EXTENSIONS.some((extension) => pathname.endsWith(`.${extension}`));
-
   if (!hasVideoExtension) {
     return { ok: false, type: "not-video-file", message: "This does not look like a direct video file link. Try a URL ending in MP4, WebM, MOV, M4V, or OGG." };
   }
-
   return { ok: true, type: "ready", message: "Direct video file detected." };
 }
 
 function getSiteNameFromUrl(value, fallbackSiteName = "my-video") {
   const clean = String(value || "").trim();
-
   if (!clean) return fallbackSiteName || "my-video";
-
   try {
     const parsed = new URL(clean);
     const host = parsed.hostname.toLowerCase().replace(/^www\./, "").replace(/^m\./, "");
-
     if (!host) return fallbackSiteName || "my-video";
-
     const parts = host.split(".").filter(Boolean);
     let siteName = parts[0] || fallbackSiteName || "my-video";
-
     if (parts.length >= 2) {
       const multiPartTlds = new Set(["co.in", "co.uk", "com.au", "com.br", "com.tr", "com.pk"]);
       const lastTwoParts = parts.slice(-2).join(".");
-
-      if (multiPartTlds.has(lastTwoParts) && parts.length >= 3) {
-        siteName = parts[parts.length - 3];
-      } else {
-        siteName = parts[parts.length - 2];
-      }
+      siteName = multiPartTlds.has(lastTwoParts) && parts.length >= 3 ? parts[parts.length - 3] : parts[parts.length - 2];
     }
-
     return normalizeSiteName(siteName || fallbackSiteName || "my-video");
   } catch {
     return fallbackSiteName || "my-video";
@@ -421,23 +367,18 @@ function getSiteNameFromUrl(value, fallbackSiteName = "my-video") {
 function normalizeSiteName(value) {
   const raw = String(value || "").trim().toLowerCase();
   const allowed = "abcdefghijklmnopqrstuvwxyz0123456789-_";
-
   const cleaned = raw
     .split("")
-    .map((char) => {
-      if (char === " ") return "-";
-      return allowed.includes(char) ? char : "-";
-    })
+    .map((char) => (char === " " ? "-" : allowed.includes(char) ? char : "-"))
     .join("")
     .replace(/-+/g, "-")
     .replace(/^-|-$/g, "");
-
   return cleaned || "my-video";
 }
 
 function normalizeFileName(value) {
-  const cleaned = normalizeSiteName(value);
-  return cleaned.endsWith(".mp4") ? cleaned : `${cleaned}.mp4`;
+  const raw = normalizeSiteName(value);
+  return `${raw}.mp4`;
 }
 
 function runTests() {
@@ -445,18 +386,31 @@ function runTests() {
     const actualType = validateUrl(test.input).type;
     return { ...test, expected: test.expectedType, actual: actualType, passed: actualType === test.expectedType };
   });
-
   const siteNameResults = SITE_NAME_TEST_CASES.map((test) => {
     const actualSiteName = getSiteNameFromUrl(test.input, test.currentSiteName);
     return { ...test, expected: test.expectedSiteName, actual: actualSiteName, passed: actualSiteName === test.expectedSiteName };
   });
-
   return [...validationResults, ...siteNameResults].filter((test) => !test.passed);
 }
 
 function clearTimers(timersRef) {
   timersRef.current.forEach((timer) => window.clearTimeout(timer));
   timersRef.current = [];
+}
+
+function TestStatus({ failedTests }) {
+  return (
+    <section className="mx-auto max-w-6xl px-5 py-6">
+      <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-5 text-sm text-amber-100">
+        <p className="font-bold">Developer checks need attention</p>
+        <ul className="mt-3 space-y-2">
+          {failedTests.map((test) => (
+            <li key={test.name}>{test.name}: expected {test.expected}, got {test.actual}</li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
 }
 
 function Header() {
@@ -472,7 +426,6 @@ function Header() {
             <p className="text-xs text-slate-400">Direct video downloader</p>
           </div>
         </a>
-
         <nav className="hidden items-center gap-6 text-sm text-slate-300 md:flex">
           <a href="/" className="hover:text-white">Home</a>
           <a href="/premium-unlock" className="hover:text-white">Premium</a>
@@ -515,33 +468,8 @@ function Faq({ q, a }) {
   );
 }
 
-function TestStatus({ failedTests }) {
-  return (
-    <section className="mx-auto max-w-6xl px-5 py-6">
-      <div className="rounded-3xl border border-amber-400/20 bg-amber-400/10 p-5 text-sm text-amber-100">
-        <p className="font-bold">Developer checks need attention</p>
-        <ul className="mt-3 space-y-2">
-          {failedTests.map((test) => (
-            <li key={test.name}>{test.name}: expected {test.expected}, got {test.actual}</li>
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
-
 function Icon({ name, className = "h-5 w-5" }) {
-  const commonProps = {
-    className,
-    viewBox: "0 0 24 24",
-    fill: "none",
-    stroke: "currentColor",
-    strokeWidth: "2",
-    strokeLinecap: "round",
-    strokeLinejoin: "round",
-    "aria-hidden": "true"
-  };
-
+  const commonProps = { className, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2", strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" };
   if (name === "download") return <svg {...commonProps}><path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M5 21h14" /></svg>;
   if (name === "link") return <svg {...commonProps}><path d="M10 13a5 5 0 0 0 7 0l2-2a5 5 0 0 0-7-7l-1 1" /><path d="M14 11a5 5 0 0 0-7 0l-2 2a5 5 0 0 0 7 7l1-1" /></svg>;
   if (name === "sparkles") return <svg {...commonProps}><path d="m12 3 2 5 5 1-5 2-2 5-2-5-5-2 5-1 2-5Z" /><path d="M19 14l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2Z" /></svg>;
@@ -552,6 +480,5 @@ function Icon({ name, className = "h-5 w-5" }) {
   if (name === "shield") return <svg {...commonProps}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" /><path d="m9 12 2 2 4-4" /></svg>;
   if (name === "globe") return <svg {...commonProps}><circle cx="12" cy="12" r="10" /><path d="M2 12h20" /><path d="M12 2a15 15 0 0 1 0 20" /><path d="M12 2a15 15 0 0 0 0 20" /></svg>;
   if (name === "file") return <svg {...commonProps}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z" /><path d="M14 2v6h6" /><path d="m10 13 5 3-5 3v-6Z" /></svg>;
-
   return <svg {...commonProps}><rect x="3" y="6" width="13" height="12" rx="2" /><path d="m16 10 5-3v10l-5-3" /></svg>;
 }
